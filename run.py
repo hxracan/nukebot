@@ -25,7 +25,7 @@ async def nuke(ctx):
     MAX_CHANNELS = 200
     BATCH_SIZE = 10
     BATCH_DELAY = 1.5
-    MESSAGES_PER_CHANNEL = 20
+    MESSAGES_PER_CHANNEL = 1
     MESSAGE_DELAY = 0.25
 
     created_channels = []
