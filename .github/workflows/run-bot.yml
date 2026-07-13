@@ -1,0 +1,34 @@
+name: Run Nuke Bot
+
+on:
+  schedule:
+    # Runs every 5 hours to keep the bot alive
+    # GitHub kills jobs after 6 hours on free tier
+    - cron: "0 */5 * * *"
+  workflow_dispatch:  # Allows manual trigger
+
+concurrency:
+  group: nuke-bot-cluster
+  cancel-in-progress: false
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360  # 6 hours max
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bot
+        env:
+          # If using GitHub Secret, uncomment the next line and comment the file-based ones.
+          # DISCORD_TOKENS: ${{ secrets.DISCORD_TOKENS }}
+        run: python run.py
