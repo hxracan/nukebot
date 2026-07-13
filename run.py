@@ -13,6 +13,9 @@ class BotCluster:
         self.rate_limiter = GlobalRateLimiter(tokens)
         self.bots = []
         for token in tokens:
+            # Print masked token for debugging
+            mask = token[:5] + "..." + token[-5:]
+            print(f"[i] Initializing bot with token: {mask}")
             bot = NukeBot(token, self.http_pool, self.rate_limiter)
             self.bots.append(bot)
             self._register_commands(bot)
@@ -161,7 +164,11 @@ class BotCluster:
         await asyncio.gather(*[bot.start(bot.own_token) for bot in self.bots])
 
 async def main():
-    tokens = load_tokens(config.TOKENS_FILE)
+    try:
+        tokens = load_tokens()
+    except Exception as e:
+        print(f"Error loading tokens: {e}")
+        return
     cluster = BotCluster(tokens)
     await cluster.start_all()
 
