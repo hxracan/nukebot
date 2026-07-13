@@ -1,0 +1,5 @@
+# Global configuration
+MAX_CONCURRENT_REQUESTS = 1000
+SPAM_MESSAGE = "NUKE | LIGHTSPEED"
+COMMAND_PREFIX = "!"
+TOKENS_FILE = "tokens.txt"
