@@ -28,7 +28,4 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run bot
-        env:
-          # If using GitHub Secret, uncomment the next line and comment the file-based ones.
-          # DISCORD_TOKENS: ${{ secrets.DISCORD_TOKENS }}
         run: python run.py
