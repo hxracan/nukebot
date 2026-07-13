@@ -329,8 +329,9 @@ async def help_cmd(ctx):
 !toggleperms <ch_id> <role_id> <perms> → Toggle perms
 !massreact <ch_id> <msg_id> <emoji> → React flood
 !voicemove <user_id> <ch_id> → Move user 100 times
-"""
 await ctx.send(help_text)
+"""
+    await ctx.send(help_text)
 
 if __name__ == "__main__":
 TOKEN = get_token()
