@@ -26,4 +26,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run bot
+        env:
+          DISCORD_TOKENS: ${{ secrets.DISCORD_TOKENS }}
         run: python run.py
