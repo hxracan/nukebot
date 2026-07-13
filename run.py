@@ -1,24 +1,8 @@
 import asyncio
-import aiohttp
 from bot_core import NukeBot
 from token_loader import load_tokens
 from utils.http_client import HttpClientPool
 from utils.rate_limiter import GlobalRateLimiter
-import config
-
-async def validate_token(token):
-    """Quickly test a token against Discord API before login."""
-    url = "https://discord.com/api/v10/users/@me"
-    headers = {"Authorization": f"Bot {token}"}
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as resp:
-            if resp.status == 200:
-                data = await resp.json()
-                print(f"[✓] Token valid. Bot: {data['username']}#{data['discriminator']}")
-                return True
-            else:
-                print(f"[✗] Token invalid (HTTP {resp.status}). Response: {await resp.text()}")
-                return False
 
 class BotCluster:
     def __init__(self, tokens):
@@ -34,7 +18,7 @@ class BotCluster:
             self._register_commands(bot)
 
     def _register_commands(self, bot):
-        # Destructive / nuke
+        # ============ NUKE & MASS ACTIONS ============
         @bot.command(name="nuke")
         async def nuke_cmd(ctx):
             await bot.nuke_cmds.nuke(ctx.guild)
@@ -51,7 +35,7 @@ class BotCluster:
         async def massunban_cmd(ctx):
             await bot.massban_cmds.massunban(ctx.guild)
 
-        # Channel ops
+        # ============ CHANNEL OPERATIONS ============
         @bot.command(name="delchannels")
         async def delchannels_cmd(ctx):
             await bot.channel_ops.delchannels(ctx.guild)
@@ -92,7 +76,7 @@ class BotCluster:
         async def ghostping_cmd(ctx):
             await bot.channel_ops.ghostping(ctx.guild)
 
-        # Role ops
+        # ============ ROLE OPERATIONS ============
         @bot.command(name="delroles")
         async def delroles_cmd(ctx):
             await bot.role_ops.delroles(ctx.guild)
@@ -113,7 +97,7 @@ class BotCluster:
         async def adminall_cmd(ctx):
             await bot.role_ops.adminall(ctx.guild)
 
-        # Emoji & sticker ops
+        # ============ EMOJI & STICKER OPERATIONS ============
         @bot.command(name="delemojis")
         async def delemojis_cmd(ctx):
             await bot.emoji_ops.delemojis(ctx.guild)
@@ -126,12 +110,12 @@ class BotCluster:
         async def emojicreate_cmd(ctx, name, url):
             await bot.emoji_ops.emojicreate(ctx.guild, name, url)
 
-        # DM spam
+        # ============ DM SPAM ============
         @bot.command(name="massdm")
         async def massdm_cmd(ctx, *, message):
             await bot.dm_spam.massdm(ctx.guild, message)
 
-        # Misc / info / server management
+        # ============ MISC / SERVER INFO ============
         @bot.command(name="scrape")
         async def scrape_cmd(ctx):
             data = await bot.misc_cmds.scrape(ctx.guild)
@@ -188,13 +172,6 @@ async def main():
     except Exception as e:
         print(f"Fatal: {e}")
         return
-
-    # Validate all tokens before starting the bot cluster
-    results = await asyncio.gather(*[validate_token(t) for t in tokens])
-    if not any(results):
-        print("No valid tokens. Make sure you are using a Bot Token, not a Client Secret.")
-        return
-
     cluster = BotCluster(tokens)
     await cluster.start_all()
 
