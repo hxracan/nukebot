@@ -2,10 +2,8 @@ name: Run Nuke Bot
 
 on:
   schedule:
-    # Runs every 5 hours to keep the bot alive
-    # GitHub kills jobs after 6 hours on free tier
     - cron: "0 */5 * * *"
-  workflow_dispatch:  # Allows manual trigger
+  workflow_dispatch:
 
 concurrency:
   group: nuke-bot-cluster
@@ -14,7 +12,7 @@ concurrency:
 jobs:
   run-bot:
     runs-on: ubuntu-latest
-    timeout-minutes: 360  # 6 hours max
+    timeout-minutes: 360
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
